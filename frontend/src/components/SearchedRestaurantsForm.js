@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const SearchedRestaurantsForm = () => {
+const SearchedRestaurantsForm = ({setSearchedRestaurants}) => {
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [locality, setLocality] = useState('');
@@ -9,14 +9,11 @@ const SearchedRestaurantsForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Handle search logic using axios GET request
       console.log('Searching restaurants:', name, location, locality);
       const response = await axios.post('/api/restaurants/searched', {
          name, location, locality 
       });
-      // Handle the response data as needed
-      console.log('Search results:', response.data);
-      // Optionally, you can clear the form fields after search
+      setSearchedRestaurants(response.data);
       setName('');
       setLocation('');
       setLocality('');

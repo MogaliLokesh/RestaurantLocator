@@ -17,6 +17,7 @@ const MapDisplay = () => {
   const [mapCenter, setMapCenter] = useState(center);
   const [restaurants, setRestaurants] = useState([]);
   const [searchedRestaurants, setSearchedRestaurants] = useState([]);
+  const [displayRestaurants, setDisplayRestaurants] = useState([]);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -24,7 +25,6 @@ const MapDisplay = () => {
         const response = await axios.get('/api/restaurants');
         setRestaurants(response.data);
         if (response.data.length > 0) {
-          // Optionally re-center the map to the first restaurant
           setMapCenter({
             lat: response.data[0].location.coordinates[0],
             lng: response.data[0].location.coordinates[1]
@@ -38,21 +38,40 @@ const MapDisplay = () => {
     fetchRestaurants();
   }, []);
 
+  // useEffect to update map center when searchedRestaurants change
+  useEffect(() => {
 
+    if (searchedRestaurants.length > 0) {
+      setMapCenter({
+        lat: searchedRestaurants[0].location.coordinates[0],
+        lng: searchedRestaurants[0].location.coordinates[1]
+      });
 
-  console.log(restaurants," restaurants in map display component");
+      setDisplayRestaurants(searchedRestaurants);
+
+    }
+    else {
+      setMapCenter({
+        lat: restaurants[0]?.location?.coordinates[0],
+        lng: restaurants[0]?.location?.coordinates[1]
+      });
+
+      setDisplayRestaurants(restaurants);
+    }
+
+  }, [searchedRestaurants, restaurants]);
 
   return (
     <LoadScript
       googleMapsApiKey="AIzaSyDcLOtFbsyUad0tfJ-GpDGvpCvz4YaUNCg"
     >
-      <SearchedRestaurantsForm setSearchedRestaurants={setSearchedRestaurants} searchedRestaurants={searchedRestaurants} /> 
+      <SearchedRestaurantsForm setSearchedRestaurants={setSearchedRestaurants} searchedRestaurants={searchedRestaurants} />
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={mapCenter}
         zoom={13}
       >
-        {restaurants.map((restaurant) => (
+        {displayRestaurants?.map((restaurant) => (
           <Marker
             key={restaurant._id}
             position={{
